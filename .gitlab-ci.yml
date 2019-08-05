@@ -1,0 +1,9 @@
+image: zenika/kotlin:1.3.31-jdk8
+
+test:
+  script: ./gradlew test
+
+deploy:
+  script: ./gradlew bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY
+  only:
+    - master
