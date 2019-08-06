@@ -38,6 +38,7 @@ if (gradle.startParameter.taskNames.contains("bintrayUpload")) {
         key = property("BINTRAY_KEY") as String
         setPublications(publication)
         publish = true
+        override = true
         pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
             repo = "kwikipedia"
             name = "kwikipedia"

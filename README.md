@@ -16,7 +16,7 @@ See the [documentation](https://neelkamath.gitlab.io/kwikipedia/).
 
 ### New Releases
 
-Bump the `version` in `build.gradle.kts`, add a [Changelog entry](CHANGELOG.md), and commit to the `master` branch. CI/CD is setup so that if the tests pass, the new package will be uploaded to Bintray, and a new GitHub release will be created.
+Bump the `version` in `build.gradle.kts`, add a [Changelog entry](CHANGELOG.md), and commit to the `master` branch. CI/CD is setup so that if the tests pass, the new package will be uploaded to Bintray, a new GitHub release will be created, and the new documentation will be hosted.
 
 ### Installation
 
