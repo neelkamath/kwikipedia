@@ -77,5 +77,6 @@ if (gradle.startParameter.taskNames.contains("githubRelease")) {
         owner("neelkamath")
         repo("kwikipedia")
         body("[Changelog](CHANGELOG.md)")
+        overwrite(true)
     }
 }

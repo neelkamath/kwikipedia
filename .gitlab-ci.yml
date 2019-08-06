@@ -1,8 +1,5 @@
 image: zenika/kotlin:1.3.31-jdk8
 
-before_script:
-  - ./gradlew # Download Gradle once for all jobs
-
 test:
   script: ./gradlew test
 
