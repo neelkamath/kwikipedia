@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.1.2"
+version = "0.1.3"
 
 repositories { jcenter() }
 
@@ -58,6 +58,8 @@ val sourcesJar by tasks.creating(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
+val dokkaGitLabPages by tasks.creating(org.jetbrains.dokka.gradle.DokkaTask::class) { outputDirectory = "public" }
+
 publishing {
     publications {
         create<MavenPublication>(publication) {
@@ -73,5 +75,6 @@ if (gradle.startParameter.taskNames.contains("githubRelease")) {
         token(property("GITHUB_TOKEN") as String)
         owner("neelkamath")
         repo("kwikipedia")
+        body("[Changelog](CHANGELOG.md)")
     }
 }

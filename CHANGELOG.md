@@ -1,3 +1,7 @@
+# v0.1.3
+
+- Updated documentation.
+
 # v0.1.2
 
 - No API changes

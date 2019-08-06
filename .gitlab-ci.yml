@@ -9,3 +9,11 @@ deploy:
     - ./gradlew githubRelease -PGITHUB_TOKEN=$GITHUB_TOKEN
   only:
     - master
+
+pages:
+  script: ./gradlew dokkaGitLabPages
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

@@ -10,9 +10,9 @@ import java.net.URI
 /**
  * Returns a Wikipedia search for [query].
  *
- * A [Map] is returned. The keys are page titles (e.g., "Apple Inc."). The values are a short description (around 300
- * characters, or 2 sentences) about the page. This function can be used to suggest Wikipedia entries as well; if
- * [query] is `appl`, pages about the fruit, company, etc. will be returned.
+ * A [Map] is returned. Each keys is a page title (e.g., "Apple Inc."). Each value is a short descriptions (around 300
+ * characters, or 2 sentences) about the page. This function can also be used to suggest Wikipedia entries. For example,
+ * if [query] is `appl`, pages about the fruit, company, etc. will be returned.
  */
 suspend fun search(query: String): Map<String, String> {
     val results = HttpClient { install(JsonFeature) }.use {

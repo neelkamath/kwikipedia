@@ -12,7 +12,7 @@ See `Maven build settings` on [Bintray](https://bintray.com/neelkamath/kwikipedi
 
 ### New Releases
 
-Bump the `version` in `build.gradle.kts`, and commit to the `master` branch. CI/CD is setup so that if the tests pass, the new package will be uploaded to Bintray, and a new GitHub release will be created.
+Bump the `version` in `build.gradle.kts`, add a [Changelog entry](CHANGELOG.md), and commit to the `master` branch. CI/CD is setup so that if the tests pass, the new package will be uploaded to Bintray, and a new GitHub release will be created.
 
 ### Installation
 
@@ -28,14 +28,34 @@ Bump the `version` in `build.gradle.kts`, and commit to the `master` branch. CI/
 
 ### Documentation
 
+#### Regular
+
 - Windows: `gradle.bat dokka`
 - Other: `./gradlew dokka`
 
-Open `build/javadoc/kwikipedia/index.html` in your browser.
+Open `build/dokka/kwikipedia/index.html` in your browser.
 
-### Upload
+#### JAR
+
+`<GRADLE> dokkaJar`, where `<GRADLE>` is `gradle.bat` on Windows and `./gradlew` on others
+
+#### For GitLab Pages
+
+`<GRADLE> dokkaGitLabPages`, where `<GRADLE>` is `gradle.bat` on Windows, and `./gradlew` on others
+
+This will output the documentation files to the `public/` directory, since GitLab deploys `public/` as a static website.
+
+### Sources JAR
+
+JCenter requires a JAR containing the source code to be uploaded along with the package. This JAR can be created with `<GRADLE> sourcesJar`, where `<GRADLE>` is `gradle.bat` on Windows and `./gradlew` on others.
+
+### Bintray Releases
 
 `<GRADLE> bintrayUpload -PBINTRAY_USER=<USER> -PBINTRAY_KEY=<KEY>`, where `<GRADLE>` is `gradle.bat` on Windows and `./gradlew` on others, `<USER>` is your Bintray username, and `<KEY>` is your Bintray API key (available by clicking `API Key` on your [profile](https://bintray.com/profile/edit))
+
+### GitHub Releases
+
+`<GRADLE> githubRelease -PGITHUB_TOKEN=<TOKEN>`, where `<GRADLE>` is `gradle.bat` on Windows and `./gradlew` on others, and `<TOKEN>` is your GitHub token (obtained by going to [settings](https://github.com/settings/tokens), clicking `Generate new token`, entering a `Note`, selecting the `repo` scope, and clicking `Generate token`)
 
 ### Forking the Repository
 
@@ -50,7 +70,7 @@ Open `build/javadoc/kwikipedia/index.html` in your browser.
 1. Click `Add New Repository` and following the steps displayed.
 1. Click `Add New Package` on the page you were taken to and follow the steps displayed.
 1. Upload the package (this can be done manually, or by pushing to the branch `master`).
-1. On your package's page, click `Add to JCenter`, and then click `Send`. After it has been approved (this may take a few hours), you will see JCenter in the `Linked to` section of your package's page.
+1. On your package's page, click `Add to JCenter`, and then click `Send`. After it has been approved (this may take a few hours), you will see `jcenter` in the `Linked to` section of your package's page.
 
 ## License
 
