@@ -1,10 +1,15 @@
 import com.jfrog.bintray.gradle.BintrayExtension
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     kotlin("jvm") version "1.3.41"
     id("org.jetbrains.dokka") version "0.9.18"
     id("com.jfrog.bintray") version "1.8.4"
+    `maven-publish`
 }
+
+group = "com.neelkamath.kwikipedia"
+version = "0.1.1"
 
 repositories { jcenter() }
 
@@ -24,15 +29,17 @@ kotlin.sourceSets {
     getByName("test").kotlin.srcDirs("src/test")
 }
 
+val publication = "default"
+
 if (gradle.startParameter.taskNames.contains("bintrayUpload")) {
     bintray {
         user = property("BINTRAY_USER") as String
         key = property("BINTRAY_KEY") as String
-        setConfigurations("archives")
+        setPublications(publication)
         publish = true
         pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-            repo = "KWikipedia"
-            name = "KWikipedia"
+            repo = "kwikipedia"
+            name = "kwikipedia"
             desc = "Minimalist Kotlin Wikipedia wrapper"
             websiteUrl = "https://github.com/neelkamath/kwikipedia"
             issueTrackerUrl = "https://github.com/neelkamath/kwikipedia/issues"
@@ -41,7 +48,27 @@ if (gradle.startParameter.taskNames.contains("bintrayUpload")) {
             setLabels("Wikipedia", "wrapper")
             githubRepo = "neelkamath/kwikipedia"
             githubReleaseNotesFile = "README.md"
-            setVersion("0.1.0")
+            setVersion(project.version)
         })
+    }
+}
+
+val dokkaJar by tasks.creating(Jar::class) {
+    archiveClassifier.set("javadoc")
+    from(tasks.dokka)
+}
+
+val sourcesJar by tasks.creating(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>(publication) {
+            from(components["java"])
+            artifact(dokkaJar)
+            artifact(sourcesJar)
+        }
     }
 }
