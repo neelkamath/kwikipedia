@@ -4,6 +4,7 @@ test:
   script: ./gradlew test
 
 deploy:
+  stage: deploy
   script:
     - ./gradlew bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY
     - ./gradlew githubRelease -PGITHUB_TOKEN=$GITHUB_TOKEN
@@ -11,6 +12,7 @@ deploy:
     - master
 
 pages:
+  stage: deploy
   script: ./gradlew dokkaGitLabPages
   artifacts:
     paths:

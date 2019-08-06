@@ -8,6 +8,10 @@ This is a minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia"). You ca
 
 See `Maven build settings` on [Bintray](https://bintray.com/neelkamath/kwikipedia/kwikipedia)
 
+## Usage
+
+See the [documentation](https://neelkamath.gitlab.io/kwikipedia/).
+
 ## Contributing
 
 ### New Releases
