@@ -6,10 +6,11 @@ plugins {
     id("org.jetbrains.dokka") version "0.9.18"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
+    id("com.github.breadmoirai.github-release") version "2.2.9"
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.1.1"
+version = "0.1.2"
 
 repositories { jcenter() }
 
@@ -40,14 +41,8 @@ if (gradle.startParameter.taskNames.contains("bintrayUpload")) {
         pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
             repo = "kwikipedia"
             name = "kwikipedia"
-            desc = "Minimalist Kotlin Wikipedia wrapper"
-            websiteUrl = "https://github.com/neelkamath/kwikipedia"
-            issueTrackerUrl = "https://github.com/neelkamath/kwikipedia/issues"
             vcsUrl = "https://github.com/neelkamath/kwikipedia.git"
             setLicenses("MIT")
-            setLabels("Wikipedia", "wrapper")
-            githubRepo = "neelkamath/kwikipedia"
-            githubReleaseNotesFile = "README.md"
             setVersion(project.version)
         })
     }
@@ -70,5 +65,13 @@ publishing {
             artifact(dokkaJar)
             artifact(sourcesJar)
         }
+    }
+}
+
+if (gradle.startParameter.taskNames.contains("githubRelease")) {
+    githubRelease {
+        token(property("GITHUB_TOKEN") as String)
+        owner("neelkamath")
+        repo("kwikipedia")
     }
 }

@@ -4,6 +4,8 @@ test:
   script: ./gradlew test
 
 deploy:
-  script: ./gradlew bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY
+  script:
+    - ./gradlew bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY
+    - ./gradlew githubRelease -PGITHUB_TOKEN=$GITHUB_TOKEN
   only:
     - master

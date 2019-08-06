@@ -2,11 +2,17 @@
 
 [![Download](https://api.bintray.com/packages/neelkamath/kwikipedia/kwikipedia/images/download.svg)](https://bintray.com/neelkamath/kwikipedia/kwikipedia/_latestVersion)
 
-Minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia")
+This is a minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia"). You can view the changelog [here](CHANGELOG.md).
+
+## Installation
+
+See `Maven build settings` on [Bintray](https://bintray.com/neelkamath/kwikipedia/kwikipedia)
 
 ## Contributing
 
-Every commit to the `master` branch in which the CI passes will cause the package to be uploaded to Bintray.
+### New Releases
+
+Bump the `version` in `build.gradle.kts`, and commit to the `master` branch. CI/CD is setup so that if the tests pass, the new package will be uploaded to Bintray, and a new GitHub release will be created.
 
 ### Installation
 
@@ -38,6 +44,7 @@ Open `build/javadoc/kwikipedia/index.html` in your browser.
 1. Create the following environment variables [via the UI](https://docs.gitlab.com/ee/ci/variables/#via-the-ui).
     - `BINTRAY_USER`: Bintray username 
     - `BINTRAY_KEY`: Bintray API Key (available by clicking `API Key` on your [profile](https://bintray.com/profile/edit))
+    - `GITHUB_TOKEN`: This is obtained by going to [settings](https://github.com/settings/tokens), clicking `Generate new token`, entering a `Note`, selecting the `repo` scope, and clicking `Generate token`.
 1. Create an account on [Bintray](https://bintray.com/).
 1. Sign in to your Bintray account.
 1. Click `Add New Repository` and following the steps displayed.
