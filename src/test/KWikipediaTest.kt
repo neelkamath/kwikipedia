@@ -3,7 +3,7 @@ package com.neelkamath.kwikipedia.test
 import com.neelkamath.kwikipedia.getPage
 import com.neelkamath.kwikipedia.search
 import com.neelkamath.kwikipedia.section
-import com.neelkamath.kwikipedia.sectionSeparator
+import com.neelkamath.kwikipedia.separator
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -18,35 +18,41 @@ class SearchTest {
 }
 
 class PageTest {
-    @Test
-    fun `Headings should not contain separators`() = runBlocking {
-        val headings = getPage("Apple Inc.").keys
-        assertTrue(
-            headings.none { it.contains(sectionSeparator) },
-            "Headings containing separators: ${headings.filter { it.contains(sectionSeparator) }}"
-        )
-    }
+    private val page = runBlocking { getPage("Apple Inc.") }
+    private val content = page.values.joinToString()
 
     @Test
-    fun `The page's contents shouldn't include the headings`() = runBlocking {
-        val page = getPage("Apple Inc.").values.joinToString()
-        assertFalse(
-            page.contains(section),
-            "Headings included in the page's contents: ${section.findAll(page).toList().map { it.value }}"
-        )
-    }
+    fun `Content shouldn't include newline characters`() = assertFalse(
+        content.contains("\n"), "Content containing \\n: $content"
+    )
 
     @Test
-    fun `The page should be as long as the original`() = runBlocking {
-        val pageLength = getPage("Apple Inc.").values.joinToString().length
-        val length = 106_718
-        val difference = 10_000
-        val range = length - difference..length + difference
+    fun `Headings should not contain separators`() = assertTrue(
+        page.keys.none { it.contains(separator) },
+        "Headings containing separators: ${page.keys.filter { it.contains(separator) }}"
+    )
+
+    @Test
+    fun `Sections should not contain separators`() = assertFalse(
+        content.contains(separator), "Content including separator ($separator): $content"
+    )
+
+    @Test
+    fun `The page's contents shouldn't include the headings`() = assertFalse(
+        content.contains(section),
+        "Headings included in the page's contents: ${section.findAll(content).toList().map { it.value }}"
+    )
+
+    @Test
+    fun `The page should be as long as the original`() {
+        val originalLength = 106_718
+        val acceptableDifference = 10_000
+        val range = originalLength - acceptableDifference..originalLength + acceptableDifference
         assertTrue(
-            pageLength in range,
+            content.length in range,
             """
-            The page should have had $range characters, but had $pageLength characters instead. We use a range because 
-            the Wikipedia page's contents are prone to change.
+            The page should have had $range characters, but had ${content.length} characters instead. We use a range 
+            because the Wikipedia page's contents are prone to change.
             """.replace(Regex("""\s+"""), " ")
         )
     }

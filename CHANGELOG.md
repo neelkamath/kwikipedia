@@ -1,3 +1,9 @@
+# v0.2.1
+
+- `getPage()`'s output has had the following things removed.
+    - Newlines (`\n`)
+    - Content separators (`==`, `===`, etc.)
+
 # v0.2.0
 
 - `getPage()` now returns the page in sections instead of the entire page in a single `String`.

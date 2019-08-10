@@ -2,7 +2,9 @@
 
 [![Download](https://api.bintray.com/packages/neelkamath/kwikipedia/kwikipedia/images/download.svg)](https://bintray.com/neelkamath/kwikipedia/kwikipedia/_latestVersion)
 
-This is a minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia"). You can view the changelog [here](CHANGELOG.md).
+This is a minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia"). 
+
+There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) and a a [changelog](CHANGELOG.md).
 
 If you are forking the repository to develop the project as your own and not just to send back a PR, follow [these steps](fork.md).
 
@@ -15,6 +17,8 @@ See `Maven build settings` on [Bintray](https://bintray.com/neelkamath/kwikipedi
 See the [documentation](https://neelkamath.gitlab.io/kwikipedia/).
 
 ## Contributing
+
+When updating the version of Kotlin used, update the versions of both the Kotlin plugin used in `build.gradle.kts` and the Docker image used in `.gitlab-ci.yml`.
 
 ### New Releases
 
@@ -34,7 +38,7 @@ Bump the `version` in `build.gradle.kts`, add a [Changelog entry](CHANGELOG.md),
 
 ### Documentation
 
-#### Regular
+#### HTML
 
 - Windows: `gradle.bat dokka`
 - Other: `./gradlew dokka`

@@ -28,12 +28,13 @@ suspend fun search(query: String): Map<String, String> {
 }
 
 internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
-internal val sectionSeparator = Regex("""\s*==+\s*""")
+internal val separator = Regex("""\s*==+\s*""")
 
 /**
  * Returns the content of the Wikipedia page having [title]. You can [search] for the exact [title].
  *
- * The returned [Map]'s keys are headings (e.g., "Bibliography"), and the values are their respective contents.
+ * The returned [Map]'s keys are headings (e.g., "Bibliography"), and the values are their respective contents. Since
+ * the page's introduction doesn't have a heading, [title] is used as the key.
  */
 suspend fun getPage(title: String): Map<String, String> {
     val data = HttpClient { install(JsonFeature) }.use {
@@ -45,8 +46,9 @@ suspend fun getPage(title: String): Map<String, String> {
         )
     }
     val pages = data["query"].asJsonObject["pages"].asJsonObject
-    val page = pages[pages.keySet().first()].asJsonObject["extract"].asString
-    val headings = section.findAll(page).toList().map { it.value.replace(sectionSeparator, "") }
-    val sections = page.split(section).drop(1)
+    val extract = pages[pages.keySet().first()].asJsonObject["extract"].asString
+    val page = extract.replace(Regex("""(\n)+"""), " ").replace("  ", " ")
+    val headings = listOf(title) + section.findAll(page).toList().map { it.value.replace(separator, "") }
+    val sections = page.split(section).map { it.replace(separator, "") }
     return headings.zip(sections).toMap().filterValues { it.isNotEmpty() }
 }
