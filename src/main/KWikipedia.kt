@@ -27,10 +27,15 @@ suspend fun search(query: String): Map<String, String> {
     return map
 }
 
-internal val wikiSection = Regex("""\s*=+ [\w\s]+ =+\s*""")
+internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
+internal val sectionSeparator = Regex("""\s*==+\s*""")
 
-/** Returns the content of the Wikipedia page having [title]. You can [search] for the exact [title]. */
-suspend fun getPage(title: String): String {
+/**
+ * Returns the content of the Wikipedia page having [title]. You can [search] for the exact [title].
+ *
+ * The returned [Map]'s keys are headings (e.g., "Bibliography"), and the values are their respective contents.
+ */
+suspend fun getPage(title: String): Map<String, String> {
     val data = HttpClient { install(JsonFeature) }.use {
         it.get<JsonObject>(
             URI(
@@ -40,5 +45,8 @@ suspend fun getPage(title: String): String {
         )
     }
     val pages = data["query"].asJsonObject["pages"].asJsonObject
-    return wikiSection.replace(pages[pages.keySet().first()].asJsonObject["extract"].asString, "")
+    val page = pages[pages.keySet().first()].asJsonObject["extract"].asString
+    val headings = section.findAll(page).toList().map { it.value.replace(sectionSeparator, "") }
+    val sections = page.split(section).drop(1)
+    return headings.zip(sections).toMap().filterValues { it.isNotEmpty() }
 }

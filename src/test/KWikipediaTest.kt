@@ -2,7 +2,8 @@ package com.neelkamath.kwikipedia.test
 
 import com.neelkamath.kwikipedia.getPage
 import com.neelkamath.kwikipedia.search
-import com.neelkamath.kwikipedia.wikiSection
+import com.neelkamath.kwikipedia.section
+import com.neelkamath.kwikipedia.sectionSeparator
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -18,17 +19,26 @@ class SearchTest {
 
 class PageTest {
     @Test
-    fun `Wiki section code should not be present`() = runBlocking {
-        val page = getPage("Apple Inc.")
+    fun `Headings should not contain separators`() = runBlocking {
+        val headings = getPage("Apple Inc.").keys
+        assertTrue(
+            headings.none { it.contains(sectionSeparator) },
+            "Headings containing separators: ${headings.filter { it.contains(sectionSeparator) }}"
+        )
+    }
+
+    @Test
+    fun `The page's contents shouldn't include the headings`() = runBlocking {
+        val page = getPage("Apple Inc.").values.joinToString()
         assertFalse(
-            page.contains(wikiSection),
-            "The page contained the following Wiki section code: ${wikiSection.findAll(page).toList().map { it.value }}"
+            page.contains(section),
+            "Headings included in the page's contents: ${section.findAll(page).toList().map { it.value }}"
         )
     }
 
     @Test
     fun `The page should be as long as the original`() = runBlocking {
-        val pageLength = getPage("Apple Inc.").length
+        val pageLength = getPage("Apple Inc.").values.joinToString().length
         val length = 106_718
         val difference = 10_000
         val range = length - difference..length + difference

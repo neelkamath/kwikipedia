@@ -1,3 +1,7 @@
+# v0.2.0
+
+- `getPage()` now returns the page in sections instead of the entire page in a single `String`.
+
 # v0.1.3
 
 - Updated documentation.
