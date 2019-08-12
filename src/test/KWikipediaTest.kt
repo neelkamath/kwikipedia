@@ -11,15 +11,19 @@ import kotlin.test.assertTrue
 
 class SearchTest {
     @Test
-    fun `Search results for "appl" should include "Apple Inc"`() = runBlocking {
-        val results = search("appl")
-        assertTrue("Apple Inc." in results, "Results were $results instead")
+    fun `Search results for "appl" should include "Apple Inc"`() = runBlocking<Unit> {
+        search("appl").also { assertTrue("Apple Inc." in it, "Results were instead: $it") }
+    }
+
+    @Test
+    fun `Searching for seven random pages should return seven pages`() = runBlocking<Unit> {
+        search(7).size.also { assertTrue(it == 7, "There were $it results instead") }
     }
 }
 
 class PageTest {
     private val page = runBlocking { getPage("Apple Inc.") }
-    private val content = page.values.joinToString()
+    private val content = page.values.joinToString(" ")
 
     @Test
     fun `Content shouldn't include newline characters`() = assertFalse(

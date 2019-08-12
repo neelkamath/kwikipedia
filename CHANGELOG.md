@@ -1,3 +1,7 @@
+# v0.2.2
+
+- `search()` and `getPage()` now have overloads for random pages.
+
 # v0.2.1
 
 - `getPage()`'s output has had the following things removed.
