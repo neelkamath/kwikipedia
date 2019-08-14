@@ -1,23 +1,29 @@
 package com.neelkamath.kwikipedia.test
 
-import com.neelkamath.kwikipedia.getPage
-import com.neelkamath.kwikipedia.search
-import com.neelkamath.kwikipedia.section
-import com.neelkamath.kwikipedia.separator
+import com.neelkamath.kwikipedia.*
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SearchTest {
     @Test
     fun `Search results for "appl" should include "Apple Inc"`() = runBlocking<Unit> {
-        search("appl").also { assertTrue("Apple Inc." in it, "Results were instead: $it") }
+        val results = search("appl")
+        assertTrue("Apple Inc." in results.map { it.title }, "Results were instead: $results")
     }
 
     @Test
     fun `Searching for seven random pages should return seven pages`() = runBlocking<Unit> {
         search(7).size.also { assertTrue(it == 7, "There were $it results instead") }
+    }
+}
+
+class UrlGetterTest {
+    @Test
+    fun `The correct URL should be gotten for an exact title`() = runBlocking {
+        assertEquals(getUrl("Apple"), "https://en.wikipedia.org/wiki/Apple")
     }
 }
 

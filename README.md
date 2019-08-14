@@ -4,7 +4,7 @@
 
 This is a minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia"). 
 
-There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) and a a [changelog](CHANGELOG.md).
+There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) and a [changelog](CHANGELOG.md).
 
 If you are forking the repository to develop the project as your own and not just to send back a PR, follow [these steps](fork.md).
 

@@ -1,3 +1,8 @@
+# v0.3.0
+
+- New API for retrieving a page's URL: `getUrl()`
+- `search()` functions have been updated to return page URLs as well.
+
 # v0.2.2
 
 - `search()` and `getPage()` now have overloads for random pages.

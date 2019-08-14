@@ -7,13 +7,16 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
 import java.net.URI
 
+private suspend fun query(query: String) = get<JsonArray>("action=opensearch&search=$query")
+
 /**
- * Search results for pages.
+ * Search result for a page.
  *
- * Page titles (e.g., `"Apple Inc."`) are mapped to short descriptions (around 300 characters or 2 sentences each) about
- * the page.
+ * An example of a [title] is `"Apple Inc."`.
+ * [description]'s are around 2 sentences (300 characters) each.
+ * The [url] links to the page.
  */
-typealias SearchResults = Map<String, String>
+data class SearchResult(val title: String, val description: String, val url: String)
 
 /**
  * Searches Wikipedia for [query].
@@ -21,16 +24,17 @@ typealias SearchResults = Map<String, String>
  * This function can also be used to suggest Wikipedia pages. For example, if [query] is `appl`, pages about the fruit,
  * tech company, etc. will be returned.
  */
-suspend fun search(query: String): SearchResults {
-    val results = get<JsonArray>("action=opensearch&search=$query")
-    val titles = results[1].asJsonArray
-    val descriptions = results[2].asJsonArray
-    val map = mutableMapOf<String, String>()
-    for (index in 0 until titles.size()) map[titles[index].asString] = descriptions[index].asString
-    return map
+suspend fun search(query: String): List<SearchResult> = with(query(query)) {
+    (0 until get(1).asJsonArray.size()).map {
+        SearchResult(
+            title = get(1).asJsonArray[it].asString,
+            description = get(2).asJsonArray[it].asString,
+            url = get(3).asJsonArray[it].asString
+        )
+    }
 }
 
-/** A page's [title]. */
+/** Page's [title]. */
 private data class RandomPage(val title: String)
 
 /** Pages present in the search results for random pages. */
@@ -40,14 +44,14 @@ private data class RandomResults(val random: List<RandomPage>)
 private data class RandomSearch(val query: RandomResults)
 
 /** Search for [limit] (at most 500) random Wikipedia pages. */
-suspend fun search(limit: Int = 1): SearchResults {
-    val searchResults = get<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
-    val searches = searchResults.query.random.map {
-        val results = search(it.title)
-        it.title to results.getValue(results.keys.first())
-    }
-    return searches.toMap()
-}
+suspend fun search(limit: Int = 1): List<SearchResult> =
+    get<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
+        .query
+        .random
+        .map { SearchResult(it.title, search(it.title)[0].description, getUrl(it.title)) }
+
+/** Gets the URL (e.g., `"https://en.wikipedia.org/wiki/Apple"`) for a page having [title] (e.g., `"Apple"`).  */
+suspend fun getUrl(title: String): String = query(title)[3].asJsonArray[0].asString
 
 /** Wikipedia returns content with sections separated with this pattern. */
 internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
@@ -65,17 +69,19 @@ typealias Page = Map<String, String>
 
 /** Returns the Wikipedia page for the specified [title]. You can [search] for the exact [title]. */
 suspend fun getPage(title: String): Page {
-    val data = get<JsonObject>("action=query&titles=$title&prop=extracts&format=json&explaintext=")
-    val pages = data["query"].asJsonObject["pages"].asJsonObject
-    val extract = pages[pages.keySet().first()].asJsonObject["extract"].asString
-    val page = extract.replace(Regex("""(\n)+"""), " ").replace("  ", " ")
+    val pages = get<JsonObject>("action=query&titles=$title&prop=extracts&format=json&explaintext=")["query"]
+        .asJsonObject["pages"]
+        .asJsonObject
+    val page = pages[pages.keySet().first()].asJsonObject["extract"].asString.replace(Regex("""(\n)+"""), " ").replace(
+        "  ", " "
+    )
     val headings = listOf(title) + section.findAll(page).toList().map { it.value.replace(separator, "") }
     val sections = page.split(section).map { it.replace(separator, "") }
     return headings.zip(sections).toMap().filterValues { it.isNotEmpty() }
 }
 
 /** Returns a random Wikipedia page. */
-suspend fun getPage(): Page = getPage(search().keys.first())
+suspend fun getPage(): Page = getPage(search()[0].title)
 
 /**
  * Performs an HTTP GET request with a [query] to the Wikipedia API to return a [T].
