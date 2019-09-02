@@ -7,8 +7,6 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
 import java.net.URI
 
-private suspend fun query(query: String) = get<JsonArray>("action=opensearch&search=$query")
-
 /**
  * Search result for a page.
  *
@@ -34,6 +32,8 @@ suspend fun search(query: String): List<SearchResult> = with(query(query)) {
     }
 }
 
+private suspend fun query(query: String) = get<JsonArray>("action=opensearch&search=$query")
+
 /** Page's [title]. */
 private data class RandomPage(val title: String)
 
@@ -55,10 +55,8 @@ suspend fun getUrl(title: String): String = query(title)[3].asJsonArray[0].asStr
 
 /** Wikipedia returns content with sections separated with this pattern. */
 internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
-
 /** Wikipedia section titles are surrounded with this pattern. */
 internal val separator = Regex("""\s*==+\s*""")
-
 /**
  * A Wikipedia page's contents.
  *
@@ -72,9 +70,11 @@ suspend fun getPage(title: String): Page {
     val pages = get<JsonObject>("action=query&titles=$title&prop=extracts&format=json&explaintext=")["query"]
         .asJsonObject["pages"]
         .asJsonObject
-    val page = pages[pages.keySet().first()].asJsonObject["extract"].asString.replace(Regex("""(\n)+"""), " ").replace(
-        "  ", " "
-    )
+    val page = pages[pages.keySet().first()]
+        .asJsonObject["extract"]
+        .asString
+        .replace(Regex("""(\n){2,}"""), "\n")
+        .replace("  ", " ")
     val headings = listOf(title) + section.findAll(page).toList().map { it.value.replace(separator, "") }
     val sections = page.split(section).map { it.replace(separator, "") }
     return headings.zip(sections).toMap().filterValues { it.isNotEmpty() }

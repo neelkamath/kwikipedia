@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 
 class SearchTest {
     @Test
-    fun `Search results for "appl" should include "Apple Inc"`() = runBlocking<Unit> {
+    fun `Search results for "appl" should include "Apple Inc"`() = runBlocking {
         val results = search("appl")
         assertTrue("Apple Inc." in results.map { it.title }, "Results were instead: $results")
     }
@@ -30,11 +30,6 @@ class UrlGetterTest {
 class PageTest {
     private val page = runBlocking { getPage("Apple Inc.") }
     private val content = page.values.joinToString(" ")
-
-    @Test
-    fun `Content shouldn't include newline characters`() = assertFalse(
-        content.contains("\n"), "Content containing \\n: $content"
-    )
 
     @Test
     fun `Headings should not contain separators`() = assertTrue(

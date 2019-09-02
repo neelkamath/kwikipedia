@@ -2,7 +2,7 @@ import com.jfrog.bintray.gradle.BintrayExtension
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.50"
     id("org.jetbrains.dokka") version "0.9.18"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.3.0"
+version = "0.3.1"
 
 repositories { jcenter() }
 
