@@ -2,7 +2,7 @@
 
 [![Download](https://api.bintray.com/packages/neelkamath/kwikipedia/kwikipedia/images/download.svg)](https://bintray.com/neelkamath/kwikipedia/kwikipedia/_latestVersion)
 
-This is a minimalist Kotlin Wikipedia wrapper (pronounced "Quickipedia"). 
+This is a minimalist Kotlin Wikipedia library (pronounced "Quickipedia") which deals with the inconsistencies in Wikipedia's API by performing tasks such as data sanitization for you.
 
 There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) and a [changelog](CHANGELOG.md).
 
@@ -18,7 +18,7 @@ See the [documentation](https://neelkamath.gitlab.io/kwikipedia/).
 
 ## Contributing
 
-When updating the version of Kotlin used, update the versions of both the Kotlin plugin used in `build.gradle.kts` and the Docker image used in `.gitlab-ci.yml`.
+When updating the version of Kotlin used, update the version of the Kotlin plugin used in `build.gradle.kts`, the Docker image used in `.gitlab-ci.yml`, and the README's [Installation section](#installation).
 
 ### New Releases
 
@@ -26,7 +26,7 @@ Bump the `version` in `build.gradle.kts`, add a [Changelog entry](CHANGELOG.md),
 
 ### Installation
 
-1. Install a version of Kotlin not less than 1.3, and less than 2 from [here](https://kotlinlang.org/docs/tutorials/command-line.html).
+1. Install a version of Kotlin not less than 1.3.50, and less than 2 from [here](https://kotlinlang.org/docs/tutorials/command-line.html).
 1. Clone the repository using one of the following methods.
     - SSH: `git clone git@github.com:neelkamath/kwikipedia.git`
     - HTTPS: `git clone https://github.com/neelkamath/kwikipedia.git`

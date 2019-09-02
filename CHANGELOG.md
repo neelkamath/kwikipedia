@@ -1,3 +1,7 @@
+# v0.3.1
+
+- The contents returned by `getPage()` and its overloads now use new lines (i.e., `\n`) instead of spaces to separate content such as lists.
+
 # v0.3.0
 
 - New API for retrieving a page's URL: `getUrl()`
