@@ -10,26 +10,30 @@ import java.net.URI
 /**
  * Search result for a page.
  *
- * An example of a [title] is `"Apple Inc."`.
- * [description]'s are around 2 sentences (300 characters) each.
- * The [url] links to the page.
+ * An example of a [title] is `"Apple Inc."`. [description]'s are around 2 sentences (300 characters) each. The [url]
+ * links to the page.
  */
 data class SearchResult(val title: String, val description: String, val url: String)
 
+/** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
+internal const val referenceDescription = " may refer to:"
+
 /**
- * Searches Wikipedia for [query].
+ * Searches for [query] and returns reference pages only if you [allowReferences].
  *
- * This function can also be used to suggest Wikipedia pages. For example, if [query] is `appl`, pages about the fruit,
- * tech company, etc. will be returned.
+ * This function can also be used to suggest pages. For example, if [query] is `appl`, pages about the fruit, tech
+ * company, etc. will be returned.
  */
-suspend fun search(query: String): List<SearchResult> = with(query(query)) {
-    (0 until get(1).asJsonArray.size()).map {
-        SearchResult(
-            title = get(1).asJsonArray[it].asString,
-            description = get(2).asJsonArray[it].asString,
-            url = get(3).asJsonArray[it].asString
-        )
-    }
+suspend fun search(query: String, allowReferences: Boolean = false): List<SearchResult> = with(query(query)) {
+    (0 until get(1).asJsonArray.size())
+        .map {
+            SearchResult(
+                title = get(1).asJsonArray[it].asString,
+                description = get(2).asJsonArray[it].asString,
+                url = get(3).asJsonArray[it].asString
+            )
+        }
+        .let { results -> if (allowReferences) results else filterReferences(results) }
 }
 
 private suspend fun query(query: String) = get<JsonArray>("action=opensearch&search=$query")
@@ -43,14 +47,21 @@ private data class RandomResults(val random: List<RandomPage>)
 /** Search results for random pages. */
 private data class RandomSearch(val query: RandomResults)
 
-/** Search for [limit] (at most 500) random Wikipedia pages. */
-suspend fun search(limit: Int = 1): List<SearchResult> =
-    get<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
+/** Search for no more than [limit] (at most 500) random pages and returns reference pages if you [allowReferences]. */
+suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<SearchResult> {
+    if (limit > 500) throw Error("<limit> cannot be greater than 500")
+    return get<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
         .query
         .random
         .map { SearchResult(it.title, search(it.title)[0].description, getUrl(it.title)) }
+        .let { if (allowReferences) it else filterReferences(it) }
+}
 
-/** Gets the URL (e.g., `"https://en.wikipedia.org/wiki/Apple"`) for a page having [title] (e.g., `"Apple"`).  */
+/** Removes reference pages from [results]. */
+private fun filterReferences(results: List<SearchResult>) =
+    results.filterNot { it.description.endsWith(referenceDescription) }
+
+/** Gets the URL (e.g., `"https://en.wikipedia.org/wiki/Apple"`) for a page having [title] (e.g., `"Apple"`). */
 suspend fun getUrl(title: String): String = query(title)[3].asJsonArray[0].asString
 
 /** Wikipedia returns content with sections separated with this pattern. */
@@ -80,8 +91,9 @@ suspend fun getPage(title: String): Page {
     return headings.zip(sections).toMap().filterValues { it.isNotEmpty() }
 }
 
-/** Returns a random Wikipedia page. */
-suspend fun getPage(): Page = getPage(search()[0].title)
+/** Returns a random Wikipedia page (if you allow [allowReferences], this might be a reference page). */
+suspend fun getPage(allowReferences: Boolean = false): Page =
+    getPage(search(allowReferences = allowReferences)[0].title)
 
 /**
  * Performs an HTTP GET request with a [query] to the Wikipedia API to return a [T].
