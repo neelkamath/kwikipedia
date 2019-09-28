@@ -10,26 +10,35 @@ import java.net.URI
 /**
  * Search result for a page.
  *
- * An example of a [title] is `"Apple Inc."`.
- * [description]'s are around 2 sentences (300 characters) each.
- * The [url] links to the page.
+ * An example of a [title] is `"Apple Inc."`. [description]'s are around 2 sentences (300 characters) each. The [url]
+ * links to the page.
  */
 data class SearchResult(val title: String, val description: String, val url: String)
+
+/** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
+internal const val referenceDescription = " may refer to:"
 
 /**
  * Searches Wikipedia for [query].
  *
  * This function can also be used to suggest Wikipedia pages. For example, if [query] is `appl`, pages about the fruit,
  * tech company, etc. will be returned.
+ *
+ * Certain Wikipedia pages (e.g., [Go](https://en.wikipedia.org/wiki/Go) are solely meant to list pages for the same
+ * name. By default, this function doesn't [allowReferences] to be returned.
  */
-suspend fun search(query: String): List<SearchResult> = with(query(query)) {
-    (0 until get(1).asJsonArray.size()).map {
-        SearchResult(
-            title = get(1).asJsonArray[it].asString,
-            description = get(2).asJsonArray[it].asString,
-            url = get(3).asJsonArray[it].asString
-        )
-    }
+suspend fun search(query: String, allowReferences: Boolean = false): List<SearchResult> = with(query(query)) {
+    (0 until get(1).asJsonArray.size())
+        .map {
+            SearchResult(
+                title = get(1).asJsonArray[it].asString,
+                description = get(2).asJsonArray[it].asString,
+                url = get(3).asJsonArray[it].asString
+            )
+        }
+        .let { results ->
+            if (allowReferences) results else results.filterNot { it.description.endsWith(referenceDescription) }
+        }
 }
 
 private suspend fun query(query: String) = get<JsonArray>("action=opensearch&search=$query")

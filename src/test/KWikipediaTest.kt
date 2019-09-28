@@ -18,6 +18,18 @@ class SearchTest {
     fun `Searching for seven random pages should return seven pages`() = runBlocking<Unit> {
         search(7).size.also { assertTrue(it == 7, "There were $it results instead") }
     }
+
+    @Test
+    fun `Search results shouldn't include reference pages by default`() = runBlocking {
+        val descriptions = search("Go").filter { it.description.endsWith(referenceDescription) }
+        assertTrue(descriptions.isEmpty(), "Reference pages returned: $descriptions")
+    }
+
+    @Test
+    fun `Searching for "Go" should return reference pages when told to`() = runBlocking {
+        val descriptions = search("Go", allowReferences = true).filter { it.description.endsWith(referenceDescription) }
+        assertTrue(descriptions.isNotEmpty(), "Search results didn't include reference pages")
+    }
 }
 
 class UrlGetterTest {
