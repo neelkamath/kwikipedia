@@ -1,3 +1,10 @@
+# v0.4.0
+
+- `search(query: String)` is now `search(query: String, allowReferences: Boolean = false)` to allow you to discard reference pages.
+- `search(limit: Int = 1)` is now `suspend fun search(limit: Int = 2, allowReferences: Boolean = false)` so that if the first result turns out to be a reference page, you won't get zero topical pages.
+- `suspend fun search(limit: Int = 2, allowReferences: Boolean = false)` now throws an `Error` if you pass a `limit` greater than `500`.
+- `getPage()` is now `getPage(allowReferences: Boolean = false)`.
+
 # v0.3.1
 
 - The contents returned by `getPage()` and its overloads now use new lines (i.e., `\n`) instead of spaces to separate content such as lists.

@@ -4,7 +4,7 @@
 
 This is a minimalist Kotlin Wikipedia library (pronounced "Quickipedia") which deals with the inconsistencies in Wikipedia's API by performing tasks such as data sanitization for you.
 
-There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) and a [changelog](CHANGELOG.md).
+There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) and a [changelog](docs/CHANGELOG.md).
 
 ## Installation
 

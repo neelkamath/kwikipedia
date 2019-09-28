@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.3.1"
+version = "0.4.0"
 
 repositories { jcenter() }
 
@@ -49,6 +49,8 @@ if (gradle.startParameter.taskNames.contains("bintrayUpload")) {
     }
 }
 
+tasks.dokka { includes = listOf("src/main/resources/doc.md") }
+
 val dokkaJar by tasks.creating(Jar::class) {
     archiveClassifier.set("javadoc")
     from(tasks.dokka)
@@ -76,7 +78,7 @@ if (gradle.startParameter.taskNames.contains("githubRelease")) {
         token(property("GITHUB_TOKEN") as String)
         owner("neelkamath")
         repo("kwikipedia")
-        body("[Changelog](CHANGELOG.md)")
+        body("[Changelog](docs/CHANGELOG.md)")
         overwrite(true)
     }
 }
