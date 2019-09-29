@@ -1,3 +1,7 @@
+# v0.4.1
+
+- `isReferencePage()` checks whether the search result is a reference page.
+
 # v0.4.0
 
 - `search()` and `getPage()` let you discard reference pages.

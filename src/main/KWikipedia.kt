@@ -15,9 +15,6 @@ import java.net.URI
  */
 data class SearchResult(val title: String, val description: String, val url: String)
 
-/** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
-internal const val referenceDescription = " may refer to:"
-
 /**
  * Searches for [query] and returns reference pages only if you [allowReferences].
  *
@@ -33,10 +30,12 @@ suspend fun search(query: String, allowReferences: Boolean = false): List<Search
                 url = get(3).asJsonArray[it].asString
             )
         }
-        .let { results -> if (allowReferences) results else filterReferences(results) }
+        .let { results ->
+            if (allowReferences) results else results.filterNot { isReferencePage(it) }
+        }
 }
 
-private suspend fun query(query: String) = get<JsonArray>("action=opensearch&search=$query")
+private suspend fun query(query: String) = getQuery<JsonArray>("action=opensearch&search=$query")
 
 /** Page's [title]. */
 private data class RandomPage(val title: String)
@@ -50,16 +49,20 @@ private data class RandomSearch(val query: RandomResults)
 /** Search for no more than [limit] (at most 500) random pages and returns reference pages if you [allowReferences]. */
 suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<SearchResult> {
     if (limit > 500) throw Error("<limit> cannot be greater than 500")
-    return get<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
+    return getQuery<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
         .query
         .random
         .map { SearchResult(it.title, search(it.title)[0].description, getUrl(it.title)) }
-        .let { if (allowReferences) it else filterReferences(it) }
+        .let { results ->
+            if (allowReferences) results else results.filterNot { isReferencePage(it) }
+        }
 }
 
-/** Removes reference pages from [results]. */
-private fun filterReferences(results: List<SearchResult>) =
-    results.filterNot { it.description.endsWith(referenceDescription) }
+/** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
+internal const val referenceDescription = " may refer to:"
+
+/** Whether the [result] is a reference page. */
+fun isReferencePage(result: SearchResult) = result.description.endsWith(referenceDescription)
 
 /** Gets the URL (e.g., `"https://en.wikipedia.org/wiki/Apple"`) for a page having [title] (e.g., `"Apple"`). */
 suspend fun getUrl(title: String): String = query(title)[3].asJsonArray[0].asString
@@ -78,7 +81,7 @@ typealias Page = Map<String, String>
 
 /** Returns the Wikipedia page for the specified [title]. You can [search] for the exact [title]. */
 suspend fun getPage(title: String): Page {
-    val pages = get<JsonObject>("action=query&titles=$title&prop=extracts&format=json&explaintext=")["query"]
+    val pages = getQuery<JsonObject>("action=query&titles=$title&prop=extracts&format=json&explaintext=")["query"]
         .asJsonObject["pages"]
         .asJsonObject
     val page = pages[pages.keySet().first()]
@@ -98,8 +101,8 @@ suspend fun getPage(allowReferences: Boolean = false): Page =
 /**
  * Performs an HTTP GET request with a [query] to the Wikipedia API to return a [T].
  *
- * [query]'s values needn't be URI encoded (e.g., `"action=opensearch&search=Apple Inc."`).
+ * The [query]'s values needn't be URI encoded (e.g., `"action=opensearch&search=Apple Inc."`).
  */
-private suspend inline fun <reified T> get(query: String) = HttpClient { install(JsonFeature) }.use {
+private suspend inline fun <reified T> getQuery(query: String) = HttpClient { install(JsonFeature) }.use {
     it.get<T>(URI("https", "en.wikipedia.org", "/w/api.php", query, null).toString())
 }
