@@ -21,9 +21,10 @@ dependencies {
     implementation("io.ktor:ktor-client-json:$ktorVersion")
     implementation("io.ktor:ktor-client-gson:$ktorVersion")
     implementation(kotlin("stdlib-jdk8"))
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
 }
+
+val test by tasks.getting(Test::class) { useJUnitPlatform { } }
 
 kotlin.sourceSets {
     getByName("main").kotlin.srcDirs("src/main")
