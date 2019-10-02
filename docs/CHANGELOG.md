@@ -1,3 +1,7 @@
+# v0.5.0
+
+- `isReferencePage()` is a method of `SearchResult`.
+
 # v0.4.1
 
 - `isReferencePage()` checks whether the search result is a reference page.

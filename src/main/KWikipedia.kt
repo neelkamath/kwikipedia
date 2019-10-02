@@ -13,7 +13,9 @@ import java.net.URI
  * An example of a [title] is `"Apple Inc."`. [description]'s are around 2 sentences (300 characters) each. The [url]
  * links to the page.
  */
-data class SearchResult(val title: String, val description: String, val url: String)
+data class SearchResult(val title: String, val description: String, val url: String) {
+    val isReferencePage = description.endsWith(referenceDescription)
+}
 
 /**
  * Searches for [query] and returns reference pages only if you [allowReferences].
@@ -31,7 +33,7 @@ suspend fun search(query: String, allowReferences: Boolean = false): List<Search
             )
         }
         .let { results ->
-            if (allowReferences) results else results.filterNot { isReferencePage(it) }
+            if (allowReferences) results else results.filterNot { it.isReferencePage }
         }
 }
 
@@ -54,15 +56,12 @@ suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<Searc
         .random
         .map { SearchResult(it.title, search(it.title)[0].description, getUrl(it.title)) }
         .let { results ->
-            if (allowReferences) results else results.filterNot { isReferencePage(it) }
+            if (allowReferences) results else results.filterNot { it.isReferencePage }
         }
 }
 
 /** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
 internal const val referenceDescription = " may refer to:"
-
-/** Whether the [result] is a reference page. */
-fun isReferencePage(result: SearchResult) = result.description.endsWith(referenceDescription)
 
 /** Gets the URL (e.g., `"https://en.wikipedia.org/wiki/Apple"`) for a page having [title] (e.g., `"Apple"`). */
 suspend fun getUrl(title: String): String = query(title)[3].asJsonArray[0].asString
