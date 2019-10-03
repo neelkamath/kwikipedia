@@ -8,6 +8,21 @@ import io.ktor.client.request.get
 import java.net.URI
 
 /**
+ * A Wikipedia page's contents.
+ *
+ * Headings (e.g., `"Bibliography"`) are mapped to their respective contents. Since the page's introduction doesn't have
+ * a heading, the page's title (e.g., `"Apple Inc."`) is used instead.
+ */
+typealias Page = Map<String, String>
+
+/** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
+internal const val referenceDescription = " may refer to:"
+/** Wikipedia returns content with sections separated with this pattern. */
+internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
+/** Wikipedia section titles are surrounded with this pattern. */
+internal val separator = Regex("""\s*==+\s*""")
+
+/**
  * Search result for a page.
  *
  * An example of a [title] is `"Apple Inc."`. [description]'s are around 2 sentences (300 characters) each. The [url]
@@ -16,6 +31,21 @@ import java.net.URI
 data class SearchResult(val title: String, val description: String, val url: String) {
     val isReferencePage = description.endsWith(referenceDescription)
 }
+
+/** Page's [title]. */
+private data class RandomPage(val title: String)
+
+/** Pages present in the search results for random pages. */
+private data class RandomResults(val random: List<RandomPage>)
+
+/** Search results for random pages. */
+private data class RandomSearch(val query: RandomResults)
+
+private data class MostViewedSearch(val query: MostViewedData)
+
+private data class MostViewedData(val mostviewed: List<PopularPage>)
+
+private data class PopularPage(val ns: Int, val title: String)
 
 /**
  * Searches for [query] and returns reference pages only if you [allowReferences].
@@ -39,44 +69,43 @@ suspend fun search(query: String, allowReferences: Boolean = false): List<Search
 
 private suspend fun query(query: String) = getQuery<JsonArray>("action=opensearch&search=$query")
 
-/** Page's [title]. */
-private data class RandomPage(val title: String)
-
-/** Pages present in the search results for random pages. */
-private data class RandomResults(val random: List<RandomPage>)
-
-/** Search results for random pages. */
-private data class RandomSearch(val query: RandomResults)
-
-/** Search for no more than [limit] (at most 500) random pages and returns reference pages if you [allowReferences]. */
+/**
+ * Search for no more than [limit] (at most 500) random pages and returns reference pages if you [allowReferences].
+ *
+ * Results are [limit]ed to `2` by default in case you [allowReferences] and the first result is a reference page.
+ */
 suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<SearchResult> {
     if (limit > 500) throw Error("<limit> cannot be greater than 500")
     return getQuery<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
         .query
         .random
-        .map { SearchResult(it.title, search(it.title)[0].description, getUrl(it.title)) }
+        .map { SearchResult(it.title, search(it.title)[0].description, searchTitle(it.title).url) }
         .let { results ->
             if (allowReferences) results else results.filterNot { it.isReferencePage }
         }
 }
 
-/** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
-internal const val referenceDescription = " may refer to:"
-
-/** Gets the URL (e.g., `"https://en.wikipedia.org/wiki/Apple"`) for a page having [title] (e.g., `"Apple"`). */
-suspend fun getUrl(title: String): String = query(title)[3].asJsonArray[0].asString
-
-/** Wikipedia returns content with sections separated with this pattern. */
-internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
-/** Wikipedia section titles are surrounded with this pattern. */
-internal val separator = Regex("""\s*==+\s*""")
 /**
- * A Wikipedia page's contents.
+ * Searches for the most popular pages in the last day ([limit]ed to a maximum of `500`).
  *
- * Headings (e.g., `"Bibliography"`) are mapped to their respective contents. Since the page's introduction doesn't have
- * a heading, the page's title (e.g., `"Apple Inc."`) is used instead.
+ * Since only content pages are retrieved, you may get fewer than the [limit] of pages.
  */
-typealias Page = Map<String, String>
+suspend fun searchMostViewed(limit: Int = 10): List<SearchResult> {
+    if (limit > 500) throw Error("<limit> cannot be greater than 500")
+    return getQuery<MostViewedSearch>("action=query&list=mostviewed&pvimlimit=$limit&format=json")
+        .query
+        .mostviewed
+        .filter { it.ns == 0 }
+        .filter { it.title != "Main Page" }
+        .map { searchTitle(it.title) }
+}
+
+/** Get a [SearchResult] for [title] if you know [title] is the exact name of a page. */
+suspend fun searchTitle(title: String): SearchResult = with(query(title).asJsonArray) {
+    val resultTitle = get(1).asJsonArray[0].asString
+    if (resultTitle != title) throw Error("<title> ($title) didn't match the search result ($resultTitle)")
+    SearchResult(resultTitle, description = get(2).asJsonArray[0].asString, url = get(3).asJsonArray[0].asString)
+}
 
 /** Returns the Wikipedia page for the specified [title]. You can [search] for the exact [title]. */
 suspend fun getPage(title: String): Page {

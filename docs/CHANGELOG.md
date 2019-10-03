@@ -1,3 +1,8 @@
+# v0.6.0
+
+- Replaced `getUrl()` with `searchTitle()`, which gives back more data.
+- `searchMostViewed()` searches for the most viewed pages in the last day.
+
 # v0.5.0
 
 - `isReferencePage()` is a method of `SearchResult`.

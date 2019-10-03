@@ -5,6 +5,7 @@ import io.kotlintest.inspectors.forAll
 import io.kotlintest.inspectors.forAtLeastOne
 import io.kotlintest.inspectors.forNone
 import io.kotlintest.matchers.collections.shouldContain
+import io.kotlintest.matchers.collections.shouldHaveAtMostSize
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.matchers.string.shouldContain
@@ -13,6 +14,7 @@ import io.kotlintest.matchers.string.shouldNotContain
 import io.kotlintest.matchers.string.shouldNotEndWith
 import io.kotlintest.matchers.withClue
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
 import kotlinx.coroutines.runBlocking
 
@@ -32,9 +34,19 @@ class SearchTest : StringSpec({
     }
 })
 
-class UrlGetterTest : StringSpec({
-    "The correct URL should be gotten for an exact title" {
-        getUrl("Apple") shouldBe "https://en.wikipedia.org/wiki/Apple"
+class TitleSearcherTest : StringSpec({
+    "The correct search result should be gotten for an exact title" {
+        searchTitle("Apple").url shouldBe "https://en.wikipedia.org/wiki/Apple"
+    }
+
+    "An error should be thrown if the title doesn't exactly match the title in the search result" {
+        shouldThrow<Throwable> { searchTitle("Appl") }
+    }
+})
+
+class MostViewedPagesTest : StringSpec({
+    "Querying for the three most viewed pages should give atmost three pages" {
+        searchMostViewed(3) shouldHaveAtMostSize 3
     }
 })
 
