@@ -5,6 +5,8 @@ import com.google.gson.JsonObject
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.net.URI
 
 /**
@@ -76,13 +78,18 @@ private suspend fun query(query: String) = getQuery<JsonArray>("action=opensearc
  */
 suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<SearchResult> {
     if (limit > 500) throw Error("<limit> cannot be greater than 500")
-    return getQuery<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
-        .query
-        .random
-        .map { SearchResult(it.title, search(it.title)[0].description, searchTitle(it.title).url) }
-        .let { results ->
-            if (allowReferences) results else results.filterNot { it.isReferencePage }
-        }
+    return coroutineScope {
+        getQuery<RandomSearch>("action=query&format=json&list=random&rnnamespace=0&rnlimit=$limit")
+            .query
+            .random
+            .map {
+                async { searchTitle(it.title) }
+            }
+            .map { it.await() }
+            .let { results ->
+                if (allowReferences) results else results.filterNot { it.isReferencePage }
+            }
+    }
 }
 
 /**
@@ -92,12 +99,16 @@ suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<Searc
  */
 suspend fun searchMostViewed(limit: Int = 10): List<SearchResult> {
     if (limit > 500) throw Error("<limit> cannot be greater than 500")
-    return getQuery<MostViewedSearch>("action=query&list=mostviewed&pvimlimit=$limit&format=json")
-        .query
-        .mostviewed
-        .filter { it.ns == 0 }
-        .filter { it.title != "Main Page" }
-        .map { searchTitle(it.title) }
+    return coroutineScope {
+        getQuery<MostViewedSearch>("action=query&list=mostviewed&pvimlimit=$limit&format=json")
+            .query
+            .mostviewed
+            .filter { it.ns == 0 && it.title != "Main Page" }
+            .map {
+                async { searchTitle(it.title) }
+            }
+            .map { it.await() }
+    }
 }
 
 /** Get a [SearchResult] for [title] if you know [title] is the exact name of a page. */

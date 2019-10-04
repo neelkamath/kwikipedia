@@ -1,3 +1,7 @@
+# v0.6.1
+
+- `search()` and `searchMostViewed()` are a magnitude faster.
+
 # v0.6.0
 
 - Replaced `getUrl()` with `searchTitle()`, which gives back more data.
