@@ -10,16 +10,15 @@ plugins {
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.6.1"
+version = "0.7.0"
 
 repositories { jcenter() }
 
 dependencies {
-    val ktorVersion = "1.2.3"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-json:$ktorVersion")
-    implementation("io.ktor:ktor-client-gson:$ktorVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
+    val retrofitVersion = "2.6.2"
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation(kotlin("stdlib-jdk8"))
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
 }

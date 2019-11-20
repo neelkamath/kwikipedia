@@ -1,3 +1,7 @@
+# v0.7.0
+
+- `search()` and `searchMostViewed()` no longer throw an `Error` when searching for more than 500 articles.
+
 # v0.6.1
 
 - `search()` and `searchMostViewed()` are a magnitude faster.

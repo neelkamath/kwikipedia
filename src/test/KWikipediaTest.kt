@@ -6,7 +6,6 @@ import io.kotlintest.inspectors.forAtLeastOne
 import io.kotlintest.inspectors.forNone
 import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldHaveAtMostSize
-import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.matchers.string.shouldEndWith
@@ -23,7 +22,7 @@ class SearchTest : StringSpec({
         search("appl").map { it.title } shouldContain "Apple Inc."
     }
 
-    "Searching for seven random pages should return seven pages" { search(7) shouldHaveSize 7 }
+    "Searching for seven random pages should return at most seven pages" { search(7) shouldHaveAtMostSize 7 }
 
     "Search results shouldn't include reference pages by default" {
         search("Go").forAll { it.description shouldNotEndWith referenceDescription }
@@ -34,6 +33,12 @@ class SearchTest : StringSpec({
     }
 })
 
+class MostViewedPagesTest : StringSpec({
+    "Querying for the five most viewed pages should give at least one and at most five pages" {
+        searchMostViewed(5).size shouldBeInRange 1..5
+    }
+})
+
 class TitleSearcherTest : StringSpec({
     "The correct search result should be gotten for an exact title" {
         searchTitle("Apple").url shouldBe "https://en.wikipedia.org/wiki/Apple"
@@ -41,12 +46,6 @@ class TitleSearcherTest : StringSpec({
 
     "An error should be thrown if the title doesn't exactly match the title in the search result" {
         shouldThrow<Throwable> { searchTitle("Appl") }
-    }
-})
-
-class MostViewedPagesTest : StringSpec({
-    "Querying for the three most viewed pages should give atmost three pages" {
-        searchMostViewed(3) shouldHaveAtMostSize 3
     }
 })
 

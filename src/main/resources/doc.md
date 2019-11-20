@@ -1,6 +1,6 @@
 # Module kwikipedia
 
-This library is a Kotlin/JVM Wikipedia wrapper.
+This Kotlin/JVM library is a wrapper for Wikipedia's HTTP API.
 
 # Package com.neelkamath.kwikipedia
 
