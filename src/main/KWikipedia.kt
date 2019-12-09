@@ -61,10 +61,12 @@ suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<Searc
 /**
  * Searches for the most popular pages in the last day.
  *
- * Since only content pages are retrieved, you may get fewer than the [limit] of pages. At most `500` articles will be
- * returned even if the [limit] is greater.
+ * Since only content pages are retrieved, you may get significantly fewer than the [limit] of pages. The default
+ * [limit] may seem to have been set unnecessarily high, but in practice it is found that even a [limit] of `10` returns
+ * `0` [SearchResult]s during random times of the day. At most `500` articles will be returned even if the [limit] is
+ * greater.
  */
-suspend fun searchMostViewed(limit: Int = 10): List<SearchResult> = coroutineScope {
+suspend fun searchMostViewed(limit: Int = 25): List<SearchResult> = coroutineScope {
     queryMostViewed(limit)
         .filter { it.namespace == 0 && it.title != "Main Page" }
         .map {

@@ -1,3 +1,7 @@
+# v0.7.1
+
+- Fix `searchMostViewed()` randomly returning zero results by drastically increasing the default limit.
+
 # v0.7.0
 
 - `search()` and `searchMostViewed()` no longer throw an `Error` when searching for more than 500 articles.
