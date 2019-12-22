@@ -4,7 +4,7 @@ If you are forking the repository to develop the project as your own and not jus
 
 ## Installation
 
-1. Install a [Java JDK or JRE](http://www.oracle.com/technetwork/java/javase/downloads/index.html) version 8 or higher. 
+1. Install [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html). 
 1. Clone the repository using one of the following methods.
     - SSH: `git clone git@github.com:neelkamath/kwikipedia.git`
     - HTTPS: `git clone https://github.com/neelkamath/kwikipedia.git`
