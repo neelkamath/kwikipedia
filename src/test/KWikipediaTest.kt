@@ -8,9 +8,7 @@ import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldHaveAtMostSize
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.matchers.string.shouldEndWith
 import io.kotlintest.matchers.string.shouldNotContain
-import io.kotlintest.matchers.string.shouldNotEndWith
 import io.kotlintest.matchers.withClue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -25,17 +23,17 @@ class SearchTest : StringSpec({
     "Searching for seven random pages should return at most seven pages" { search(7) shouldHaveAtMostSize 7 }
 
     "Search results shouldn't include reference pages by default" {
-        search("Go").forAll { it.description shouldNotEndWith referenceDescription }
+        search("Go").forAll { !it.isReferencePage }
     }
 
     """Searching for "Go" should return reference pages when told to""" {
-        search("Go", allowReferences = true).forAtLeastOne { it.description shouldEndWith referenceDescription }
+        search("Go", allowReferences = true).forAtLeastOne { it.isReferencePage }
     }
 })
 
 class MostViewedPagesTest : StringSpec({
-    "Querying for the five most viewed pages should give at least one and at most five pages" {
-        searchMostViewed(5).size shouldBeInRange 1..5
+    "Querying for the five most viewed pages should give at most five pages" {
+        searchMostViewed(5) shouldHaveAtMostSize 5
     }
 })
 
