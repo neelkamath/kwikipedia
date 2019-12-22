@@ -1,3 +1,7 @@
+# v0.7.2
+
+- Documented that Wikipedia doesn't return search results during random periods of time.
+
 # v0.7.1
 
 - Fix `searchMostViewed()` randomly returning zero results by drastically increasing the default limit.

@@ -61,10 +61,12 @@ suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<Searc
 /**
  * Searches for the most popular pages in the last day.
  *
- * Since only content pages are retrieved, you may get significantly fewer than the [limit] of pages. The default
- * [limit] may seem to have been set unnecessarily high, but in practice it is found that even a [limit] of `10` returns
- * `0` [SearchResult]s during random times of the day. At most `500` articles will be returned even if the [limit] is
- * greater.
+ * Since only content pages are retrieved, you may get significantly fewer than the [limit] of pages. At most `500`
+ * articles will be returned even if the [limit] is greater.
+ *
+ * It has been found that Wikipedia returns zero search results for random periods of time. Only trending topic searches
+ * (i.e., this function) are affected. The other search functions always function normally. We cannot recursively call
+ * the function until it returns results, because this outage lasts for hours at a time.
  */
 suspend fun searchMostViewed(limit: Int = 25): List<SearchResult> = coroutineScope {
     queryMostViewed(limit)

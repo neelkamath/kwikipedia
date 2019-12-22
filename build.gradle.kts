@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.7.1"
+version = "0.7.2"
 
 repositories { jcenter() }
 

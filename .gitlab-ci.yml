@@ -1,21 +1,24 @@
-image: openjdk:8
+image: openjdk:8-alpine
 
 test:
-  script: ./gradlew test
+  script: ./gradlew --no-daemon test
+  artifacts:
+    paths: [build/reports/tests/test/]
+    when: always
 
 bintray-upload:
   stage: deploy
-  script: ./gradlew bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY
+  script: ./gradlew --no-daemon bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY
   only: [master]
 
 github-release:
   stage: deploy
-  script: ./gradlew githubRelease -PGITHUB_TOKEN=$GITHUB_TOKEN
+  script: ./gradlew --no-daemon githubRelease -PGITHUB_TOKEN=$GITHUB_TOKEN
   only: [master]
 
 pages:
   stage: deploy
-  script: ./gradlew dokkaGitlabPages
+  script: ./gradlew --no-daemon dokkaGitlabPages
   artifacts:
     paths: [public]
   only: [master]
