@@ -1,73 +1,79 @@
 package com.neelkamath.kwikipedia.test
 
 import com.neelkamath.kwikipedia.*
-import io.kotlintest.inspectors.forAll
-import io.kotlintest.inspectors.forAtLeastOne
-import io.kotlintest.inspectors.forNone
-import io.kotlintest.matchers.collections.shouldContain
-import io.kotlintest.matchers.collections.shouldHaveAtMostSize
-import io.kotlintest.matchers.numerics.shouldBeInRange
-import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.matchers.string.shouldNotContain
-import io.kotlintest.matchers.withClue
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.StringSpec
 import kotlinx.coroutines.runBlocking
+import kotlin.test.*
 
-class SearchTest : StringSpec({
-    """Search results for "appl" should include "Apple Inc."""" {
-        search("appl").map { it.title } shouldContain "Apple Inc."
+internal class SearchTest {
+    @Test
+    fun `Search results for "appl" should include "Apple Inc"`() =
+        assertTrue("Apple Inc." in search("appl").map(SearchResult::title))
+
+    @Test
+    fun `Searching for seven random pages should return at most seven pages`() {
+        assertTrue(runBlocking { search(7) }.size <= 7)
     }
 
-    "Searching for seven random pages should return at most seven pages" { search(7) shouldHaveAtMostSize 7 }
+    @Test
+    fun `Search results shouldn't include reference pages by default`() =
+        assertTrue(search("Go").none(SearchResult::isReferencePage))
 
-    "Search results shouldn't include reference pages by default" {
-        search("Go").forAll { !it.isReferencePage }
+    @Test
+    fun `Searching for "Go" should return reference pages when told to`() {
+        assertTrue(search("Go", allowReferences = true).any(SearchResult::isReferencePage))
     }
+}
 
-    """Searching for "Go" should return reference pages when told to""" {
-        search("Go", allowReferences = true).forAtLeastOne { it.isReferencePage }
+internal class MostViewedPages {
+    @Test
+    fun `Querying for the five most viewed pages should give at most five pages`() =
+        assertTrue(runBlocking { searchMostViewed(5) }.size <= 5)
+}
+
+internal class TitleSearcherTest {
+    @Test
+    fun `The correct search result should be gotten for an exact title`() =
+        assertEquals("https://en.wikipedia.org/wiki/Apple", searchTitle("Apple").url)
+
+    @Test
+    fun `An error should be thrown if the title doesn't exactly match the title in the search result`() {
+        assertFailsWith<Throwable> { searchTitle("Appl") }
     }
-})
+}
 
-class MostViewedPagesTest : StringSpec({
-    "Querying for the five most viewed pages should give at most five pages" {
-        searchMostViewed(5) shouldHaveAtMostSize 5
-    }
-})
+internal class PageTest {
+    private val page = getPage("Apple Inc.")
+    private val content = page.values.joinToString(" ")
 
-class TitleSearcherTest : StringSpec({
-    "The correct search result should be gotten for an exact title" {
-        searchTitle("Apple").url shouldBe "https://en.wikipedia.org/wiki/Apple"
-    }
+    @Test
+    fun `Headings should not contain separators`() = assertTrue(
+        page.keys.none { it.contains(separator) },
+        "Headings containing separators: ${page.keys.filter { it.contains(separator) }}"
+    )
 
-    "An error should be thrown if the title doesn't exactly match the title in the search result" {
-        shouldThrow<Throwable> { searchTitle("Appl") }
-    }
-})
+    @Test
+    fun `Sections should not contain separators`() = assertFalse(
+        content.contains(separator), "Content including separator ($separator): $content"
+    )
 
-class PageTest : StringSpec({
-    val page = runBlocking { getPage("Apple Inc.") }
-    val content = page.values.joinToString(" ")
+    @Test
+    fun `The page's contents shouldn't include the headings`() = assertFalse(
+        content.contains(section),
+        "Headings included in the page's contents: ${section.findAll(content).toList().map { it.value }}"
+    )
 
-    "Headings should not contain separators" {
-        page.keys.forNone { it shouldContain separator }
-    }
-
-    "Sections should not contain separators" { content shouldNotContain separator }
-
-    "The page's contents shouldn't include the headings" { content shouldNotContain section }
-
-    "The page should be as long as the original" {
+    @Test
+    fun `The page should be as long as the original`() {
         val originalLength = 106_718
-        val acceptableDifference = 10_000
+        val acceptableDifference = 20_000
         val range = originalLength - acceptableDifference..originalLength + acceptableDifference
-        withClue(
+
+        assertTrue(
+            content.length in range,
             """
             |The page should have had $range characters, but had ${content.length} characters instead. We use a range 
             |because the Wikipedia page's contents are prone to change.
             """.trimMargin()
-        ) { content.length shouldBeInRange range }
+        )
     }
-})
+}
