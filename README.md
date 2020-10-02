@@ -10,7 +10,7 @@ There are [GitHub releases](https://github.com/neelkamath/kwikipedia/releases) a
 
 See `Maven build settings` on [Bintray](https://bintray.com/neelkamath/kwikipedia/kwikipedia)
 
-## [Usage](https://neelkamath.gitlab.io/kwikipedia/)
+## [Usage](https://neelkamath.github.io/kwikipedia/)
 
 ## [Contributing](docs/CONTRIBUTING.md)
 
