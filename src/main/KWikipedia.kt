@@ -13,12 +13,14 @@ import kotlinx.coroutines.coroutineScope
  * Headings (e.g., `"Bibliography"`) are mapped to their respective contents. Since the page's introduction doesn't have
  * a heading, the page's title (e.g., `"Apple Inc."`) is used instead.
  */
-typealias Page = Map<String, String>
+public typealias Page = Map<String, String>
 
 /** If a page's description ends with this [String], it is a reference page (a page containing only redirects). */
 internal const val referenceDescription = " may refer to:"
+
 /** Wikipedia returns content with sections separated with this pattern. */
 internal val section = Regex("""\s*==+ [\w\s]+ ==+\s*""")
+
 /** Wikipedia section titles are surrounded with this pattern. */
 internal val separator = Regex("""\s*==+\s*""")
 
@@ -28,8 +30,8 @@ internal val separator = Regex("""\s*==+\s*""")
  * An example of a [title] is `"Apple Inc."`. [description]'s are around 2 sentences (300 characters) each. The [url]
  * links to the page.
  */
-data class SearchResult(val title: String, val description: String, val url: String) {
-    val isReferencePage = description.endsWith(referenceDescription)
+public data class SearchResult(val title: String, val description: String, val url: String) {
+    val isReferencePage: Boolean = description.endsWith(referenceDescription)
 }
 
 /**
@@ -38,7 +40,7 @@ data class SearchResult(val title: String, val description: String, val url: Str
  * This function can also be used to suggest pages. For example, if [query] is `"appl"`, pages about the fruit (apple),
  * the tech company (Apple Inc.), etc. will be returned.
  */
-fun search(query: String, allowReferences: Boolean = false): List<SearchResult> = search(query).let { results ->
+public fun search(query: String, allowReferences: Boolean = false): List<SearchResult> = search(query).let { results ->
     if (allowReferences) results else results.filterNot { it.isReferencePage }
 }
 
@@ -47,14 +49,12 @@ fun search(query: String, allowReferences: Boolean = false): List<SearchResult> 
  *
  * Results are [limit]ed to `2` by default in case you [allowReferences] and the first result is a reference page.
  */
-suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<SearchResult> = coroutineScope {
+public suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<SearchResult> = coroutineScope {
     queryRandom(limit)
-        .map {
-            async { searchTitle(it.title) }
-        }
+        .map { async { searchTitle(it.title) } }
         .map { it.await() }
         .let { results ->
-            if (allowReferences) results else results.filterNot { it.isReferencePage }
+            if (allowReferences) results else results.filterNot(SearchResult::isReferencePage)
         }
 }
 
@@ -68,22 +68,20 @@ suspend fun search(limit: Int = 2, allowReferences: Boolean = false): List<Searc
  * (i.e., this function) are affected. The other search functions always function normally. We cannot recursively call
  * the function until it returns results, because this outage lasts for hours at a time.
  */
-suspend fun searchMostViewed(limit: Int = 25): List<SearchResult> = coroutineScope {
+public suspend fun searchMostViewed(limit: Int = 25): List<SearchResult> = coroutineScope {
     queryMostViewed(limit)
         .filter { it.namespace == 0 && it.title != "Main Page" }
-        .map {
-            async { searchTitle(it.title) }
-        }
+        .map { async { searchTitle(it.title) } }
         .map { it.await() }
 }
 
 /** Get a [SearchResult] for [title] if you know [title] is the exact name of a page. */
-fun searchTitle(title: String): SearchResult = search(title)[0].also {
+public fun searchTitle(title: String): SearchResult = search(title)[0].also {
     if (it.title != title) throw Error("<title> ($title) didn't match the search result (${it.title})")
 }
 
 /** Returns the Wikipedia page for the specified [title]. You can [search] for the exact [title]. */
-fun getPage(title: String): Page {
+public fun getPage(title: String): Page {
     val page = getArticle(title).replace(Regex("""(\n){2,}"""), "\n").replace("  ", " ")
     val headings = listOf(title) + section.findAll(page).toList().map { it.value.replace(separator, "") }
     val sections = page.split(section).map { it.replace(separator, "") }
@@ -91,5 +89,5 @@ fun getPage(title: String): Page {
 }
 
 /** Returns a random Wikipedia page (if you allow [allowReferences], this might be a reference page). */
-suspend fun getPage(allowReferences: Boolean = false): Page =
+public suspend fun getPage(allowReferences: Boolean = false): Page =
     getPage(search(allowReferences = allowReferences)[0].title)
