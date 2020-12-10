@@ -4,14 +4,10 @@
 
 If you're forking the repository to develop the project as your own and not just to send back a PR, follow these steps:
 
-1. Use [Bintray](https://bintray.com/) to publish the package.
-1. Create the
-   following [secrets](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository):
-
-   |Key|Explanation|
-             |:---:|:---:|
-   |`BINTRAY_USER`|Bintray username| 
-   |`BINTRAY_KEY`|Bintray API Key|
+1. Set up a [Bintray](https://bintray.com/) repo to publish the package.
+1. Create
+   a [secret](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository)
+   named `BINTRAY_KEY` whose value is your Bintray API key.
 
 ## Installation
 
@@ -36,6 +32,6 @@ Open `build/dokka/html/kwikipedia/index.html` in your browser.
 
 ## Releasing
 
-Bump the `version` in [`build.gradle.kts`](build.gradle.kts), add a [Changelog entry](CHANGELOG.md), and commit to
+Bump the `version` in [`build.gradle.kts`](../build.gradle.kts), add a [Changelog entry](CHANGELOG.md), and commit to
 the `master` branch. If the tests pass in the CI/CD pipeline, the new package will be uploaded to Bintray, a new GitHub
 release will be created, and the new documentation will be hosted.

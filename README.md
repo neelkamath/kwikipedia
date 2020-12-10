@@ -3,7 +3,7 @@
 This is a minimal Kotlin Wikipedia library (pronounced "Quickipedia") which deals with the inconsistencies in
 Wikipedia's API by performing tasks such as data sanitization for you. It runs on JVM 8 (e.g., Java, Kotlin).
 
-There is a [Changelog](CHANGELOG.md) and [GitHub releases](https://github.com/neelkamath/kwikipedia/releases).
+There is a [Changelog](docs/CHANGELOG.md) and [GitHub releases](https://github.com/neelkamath/kwikipedia/releases).
 
 ## Installation
 
@@ -11,7 +11,7 @@ There is a [Changelog](CHANGELOG.md) and [GitHub releases](https://github.com/ne
 
 ## [Usage](https://neelkamath.github.io/kwikipedia/)
 
-## [Contributing](CONTRIBUTING.md)
+## [Contributing](docs/CONTRIBUTING.md)
 
 ## License
 
