@@ -1,37 +1,23 @@
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
       - run: ./gradlew --no-daemon test
-      - name: Upload artifacts
+      - name: Upload report
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: test-report
           path: build/reports/tests/test/
-  bintray-upload:
-    if: github.ref == 'refs/heads/master'
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Publish
-        env:
-          BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
-        run: ./gradlew --no-daemon bintrayUpload -PBINTRAY_USER=neelkamath -PBINTRAY_KEY=$BINTRAY_KEY
-  github-release:
-    if: github.ref == 'refs/heads/master'
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew --no-daemon githubRelease -PGITHUB_TOKEN=$GITHUB_TOKEN
-  pages:
+  github-pages:
     if: github.ref == 'refs/heads/master'
     needs: test
     runs-on: ubuntu-latest
@@ -40,8 +26,35 @@ jobs:
       - run: ./gradlew --no-daemon dokkaHtml
       - run: mkdir -p build/dokka/html
       - run: cp docs/index.html build/dokka/html
+      - uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: build/dokka/html/
       - uses: crazy-max/ghaction-github-pages@v2
         with:
           build_dir: build/dokka/html
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  github-release:
+    if: github.ref == 'refs/heads/master'
+    needs: [ test, github-pages ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Set $VERSION
+        run: echo "VERSION=$(./gradlew -q printVersion)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v2
+        with:
+          name: docs
+          path: docs/
+      - run: zip -r docs.zip docs/
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v$VERSION docs.zip \
+              -n "[Changelog](https://github.com/neelkamath/kwikipedia/blob/v$VERSION/docs/CHANGELOG.md)" \
+              $([[ $VERSION = 0* ]] && echo '-p')

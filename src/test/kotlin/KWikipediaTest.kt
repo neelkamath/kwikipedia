@@ -5,7 +5,7 @@ import kotlin.test.*
 
 class SearchTest {
     @Test
-    fun `Search results for "appl" should include "Apple Inc"`(): Unit =
+    fun `Search results for 'appl' should include 'Apple Inc'`(): Unit =
         assertTrue("Apple Inc." in search("appl").map(SearchResult::title))
 
     @Test
@@ -17,7 +17,7 @@ class SearchTest {
         assertTrue(search("Go").none(SearchResult::isReferencePage))
 
     @Test
-    fun `Searching for "Go" should return reference pages when told to`(): Unit =
+    fun `Searching for 'Go' should return reference pages when told to`(): Unit =
         assertTrue(search("Go", allowReferences = true).any(SearchResult::isReferencePage))
 }
 
@@ -45,18 +45,17 @@ class PageTest {
     @Test
     fun `Headings should not contain separators`(): Unit = assertTrue(
         page.keys.none { it.contains(separator) },
-        "Headings containing separators: ${page.keys.filter { it.contains(separator) }}"
+        "Headings containing separators: ${page.keys.filter { it.contains(separator) }}",
     )
 
     @Test
-    fun `Sections should not contain separators`(): Unit = assertFalse(
-        content.contains(separator), "Content including separator ($separator): $content"
-    )
+    fun `Sections should not contain separators`(): Unit =
+        assertFalse(content.contains(separator), "Content including separator ($separator): $content")
 
     @Test
     fun `The page's contents shouldn't include the headings`(): Unit = assertFalse(
         content.contains(section),
-        "Headings included in the page's contents: ${section.findAll(content).toList().map { it.value }}"
+        "Headings included in the page's contents: ${section.findAll(content).toList().map { it.value }}",
     )
 
     @Test
@@ -69,7 +68,7 @@ class PageTest {
             """
             |The page should have had $range characters, but had ${content.length} characters instead. We use a range 
             |because the Wikipedia page's contents are prone to change.
-            """.trimMargin()
+            """.trimMargin(),
         )
     }
 }
