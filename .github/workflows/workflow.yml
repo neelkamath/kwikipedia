@@ -38,6 +38,7 @@ jobs:
   github-release:
     # if: github.ref == 'refs/heads/master'
     # needs: test
+    needs: github-pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

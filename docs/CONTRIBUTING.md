@@ -23,6 +23,6 @@ Open `build/dokka/html/kwikipedia/index.html` in your browser.
 
 ## Releasing
 
-1. Bump the version in [`build.gradle.kts`](../build.gradle.kts) and [README](../README.md).
+1. Bump the `version` in [`build.gradle.kts`](../build.gradle.kts).
 1. Add a [Changelog entry](CHANGELOG.md).
 1. Commit to the `master` branch. If the tests pass in the CI/CD pipeline, the new package will be uploaded to JitPack, a new GitHub release will be created, and the new documentation will be hosted.
