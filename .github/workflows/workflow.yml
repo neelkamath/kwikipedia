@@ -18,8 +18,8 @@ jobs:
           name: test-report
           path: build/reports/tests/test/
   github-pages:
-    # if: github.ref == 'refs/heads/master'
-    # needs: test
+    if: github.ref == 'refs/heads/master'
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -36,9 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   github-release:
-    # if: github.ref == 'refs/heads/master'
-    # needs: test
-    needs: github-pages
+    if: github.ref == 'refs/heads/master'
+    needs: [ test, github-pages ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
