@@ -9,8 +9,7 @@ Wikipedia's API by performing tasks such as data sanitization for you. It runs o
 
 ## Usage
 
-- View the latest docs [here](https://jitpack.io/com/github/neelkamath/kwikipedia/latest/javadoc).
-- To view a previous version's docs, open `https://jitpack.io/com/github/neelkamath/kwikipedia/<VERSION>/javadoc` after replacing `<VERSION>` with the version (e.g., `0.9.0`).
+- Here's the latest version's [documentation](https://neelkamath.github.io/kwikipedia/). To view a previous version's documentation, find the relevant [release](https://github.com/neelkamath/kwikipedia/releases), download **docs.zip** from **Assets**, unzip it, and open `docs/index.html` in your browser.
 - [Changelog](docs/CHANGELOG.md)
 
 ## [Contributing](docs/CONTRIBUTING.md)

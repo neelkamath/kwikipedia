@@ -17,9 +17,27 @@ jobs:
         with:
           name: test-report
           path: build/reports/tests/test/
+  github-pages:
+    # if: github.ref == 'refs/heads/master'
+    # needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./gradlew --no-daemon dokkaHtml
+      - run: mkdir -p build/dokka/html
+      - run: cp docs/index.html build/dokka/html
+      - uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: build/dokka/html/
+      - uses: crazy-max/ghaction-github-pages@v2
+        with:
+          build_dir: build/dokka/html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   github-release:
-    #if: github.ref == 'refs/heads/master'
-    #needs: test
+    # if: github.ref == 'refs/heads/master'
+    # needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -28,24 +46,15 @@ jobs:
           java-version: 8
       - name: Set $VERSION
         run: echo "VERSION=$(./gradlew -q printVersion)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v2
+        with:
+          name: docs
+          path: docs/
+      - run: zip -r docs.zip docs/
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v$VERSION \
+          gh release create v$VERSION docs.zip \
               -n "[Changelog](https://github.com/neelkamath/kwikipedia/blob/v$VERSION/docs/CHANGELOG.md)" \
               $([[ $VERSION = 0* ]] && echo '-p')
-  github-pages:
-    #if: github.ref == 'refs/heads/master'
-    #needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: ./gradlew --no-daemon dokkaHtml
-      - run: mkdir -p build/dokka/html
-      - run: cp docs/index.html build/dokka/html
-      - uses: crazy-max/ghaction-github-pages@v2
-        with:
-          build_dir: build/dokka/html
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

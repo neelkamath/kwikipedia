@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- Improved docs.
+- Changed package host.
 
 ## [0.8.0](https://github.com/neelkamath/kwikipedia/releases/tag/v0.8.0)
 
