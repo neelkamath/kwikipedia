@@ -1,29 +1,23 @@
-import com.jfrog.bintray.gradle.BintrayExtension
-import org.gradle.jvm.tasks.Jar
 import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     `maven-publish`
-    kotlin("jvm") version "1.4.10"
-    id("org.jetbrains.dokka") version "1.4.10.2"
-    id("com.jfrog.bintray") version "1.8.5"
-    id("com.github.breadmoirai.github-release") version "2.2.12"
+    kotlin("jvm") version "1.4.31"
+    id("org.jetbrains.dokka") version "1.4.20"
 }
 
 group = "com.neelkamath.kwikipedia"
-version = "0.8.0"
+version = "0.9.0"
 
 kotlin.explicitApi()
-
-val publication = "default"
 
 repositories.jcenter()
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.3")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.31") // Needed by Jackson.
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
     testImplementation(kotlin("test-junit5"))
 
     val retrofitVersion = "2.9.0"
@@ -39,6 +33,10 @@ tasks {
     withType<DokkaTask> {
         dokkaSourceSets.configureEach { includes.setFrom(includes + "src/main/resources/doc.md") }
     }
+    register("printVersion") { println(project.version) }
+    val jvmTarget = "1.8"
+    compileKotlin { kotlinOptions.jvmTarget = jvmTarget }
+    compileTestKotlin { kotlinOptions.jvmTarget = jvmTarget }
 }
 
 val dokkaJar by tasks.creating(Jar::class) {
@@ -51,33 +49,9 @@ val sourcesJar by tasks.creating(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
-publishing.publications.create<MavenPublication>(publication) {
+publishing.publications.create<MavenPublication>("default") {
+    artifactId = "kwikipedia"
     from(components["java"])
     artifact(dokkaJar)
     artifact(sourcesJar)
 }
-
-if (gradle.startParameter.taskNames.contains("bintrayUpload"))
-    bintray {
-        user = property("BINTRAY_USER") as String
-        key = property("BINTRAY_KEY") as String
-        setPublications(publication)
-        publish = true
-        override = true
-        pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-            repo = "kwikipedia"
-            name = "kwikipedia"
-            vcsUrl = "https://github.com/neelkamath/kwikipedia.git"
-            setLicenses("MIT")
-            setVersion(project.version)
-        })
-    }
-
-if (gradle.startParameter.taskNames.contains("githubRelease"))
-    githubRelease {
-        token(property("GITHUB_TOKEN") as String)
-        owner("neelkamath")
-        repo("kwikipedia")
-        body("[Changelog](docs/CHANGELOG.md)")
-        overwrite(true)
-    }
